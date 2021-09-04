@@ -17,6 +17,21 @@ var (
 	separator           = " "
 )
 
+var monthList = []string{
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+}
+
 func init() {
 	flag.IntVar(&col, "k", 0, "указание колонки для сортировки")
 	flag.BoolVar(&n, "n", false, "сортировать по числовому значению")
@@ -41,98 +56,151 @@ func main() {
 	UtilSort(input)
 }
 
+func getMonthNumber(month string) int {
+	month = strings.ToLower(month)
+	for i := range monthList {
+		if month == strings.ToLower(monthList[i]) {
+			return i + 1
+		}
+	}
+	return -1
+}
+
+func ignoreSpaces(input []string) []string {
+	//func for flag -b
+	for i, v := range input {
+		tmp := strings.TrimSpace(v)
+		input[i] = tmp
+	}
+	return input
+}
+
+func makeUnique(input []string) []string {
+	//func for flag -u
+	uniqueMap := make(map[string]struct{})
+	for _, v := range input {
+		uniqueMap[v] = struct{}{}
+	}
+	input = []string{}
+	for k := range uniqueMap {
+		input = append(input, k)
+	}
+	return input
+}
+
+func checkIfSorted(input []string) []string {
+	//func for flag -c
+	if sort.StringsAreSorted(input) {
+		fmt.Println("Sorted")
+		return []string{"Sorted"}
+	} else {
+		fmt.Println("Not Sorted")
+		return []string{"Not Sorted"}
+	}
+}
+
+func sortByMonth(input []string, rev bool) []string {
+	//func for flag -m and -m -r
+	incOrder := func(i, j int) bool {
+		return getMonthNumber(input[i]) < getMonthNumber(input[j])
+	}
+	decOrder := func(i, j int) bool {
+		return getMonthNumber(input[i]) > getMonthNumber(input[j])
+	}
+
+	if rev {
+		sort.SliceStable(input, decOrder)
+	} else {
+		sort.SliceStable(input, incOrder)
+	}
+
+	return input
+}
+
+func normalSort(input []string, rev bool) []string {
+	//func for basic sorting purposes
+	if rev {
+		sort.Sort(sort.Reverse(sort.StringSlice(input)))
+	} else {
+		sort.Strings(input)
+	}
+	return input
+}
+
+func numSort(input []string, rev bool) []string {
+	//func for -h and -n flags
+	natsort.Sort(input)
+	if rev {
+		for i, j := 0, len(input)-1; i < j; i, j = i+1, j-1 {
+			input[i], input[j] = input[j], input[i]
+		}
+	}
+	return input
+}
+
+func changeColOrder(input []string, reqCol int) []string {
+	//first part of code for -k flag
+	tmp := []string{}
+	for _, v := range input {
+		tmp = append(tmp, strings.Split(v, separator)[reqCol-1])
+	}
+	input = tmp
+
+	return input
+}
+
+func returnToInitialColOrder(input []byte, output []string, reqCol int) []string {
+	tmp := make(map[string]string)
+	for _, v := range strings.Split(string(input), "\n") {
+		line := strings.Split(v, separator)
+		tmp[line[col-1]] = v
+	}
+	for i := range output {
+		output[i] = tmp[output[i]]
+	}
+	return output
+}
+
 func UtilSort(input []byte) []string {
 	output := strings.Split(string(input), "\n")
 
+	for _, v := range output {
+		fmt.Println(v)
+	}
+
 	if b {
-		for i, v := range output {
-			tmp := strings.TrimSpace(v)
-			output[i] = tmp
-		}
+		output = ignoreSpaces(output)
 	}
 
 	if col > 0 {
-		tmp := []string{}
-		for _, v := range output {
-			tmp = append(tmp, strings.Split(v, separator)[col-1])
-		}
-		output = tmp
+		output = changeColOrder(output, col)
+		fmt.Println(output)
 	}
 
-	fmt.Println(output)
-
 	if u {
-		uniqueMap := make(map[string]struct{})
-		for _, v := range output {
-			uniqueMap[v] = struct{}{}
-		}
-		output = []string{}
-		for k := range uniqueMap {
-			output = append(output, k)
-		}
+		output = makeUnique(output)
 	}
 
 	if m {
-		incOrder := func(i, j int) bool {
-			return getMonthNumber(output[i]) < getMonthNumber(output[j])
-		}
-		decOrder := func(i, j int) bool {
-			return getMonthNumber(output[i]) > getMonthNumber(output[j])
-		}
-
-		if r {
-			sort.SliceStable(output, decOrder)
-		} else {
-			sort.SliceStable(output, incOrder)
-		}
+		output = sortByMonth(output, r)
 	}
 
 	if n || h {
 		if c {
-			if sort.StringsAreSorted(output) {
-				fmt.Println("Sorted")
-				return []string{"Sorted"}
-			} else {
-				fmt.Println("Not Sorted")
-				return []string{"Not sorted"}
-			}
+			return checkIfSorted(output)
 		}
-		natsort.Sort(output)
-		if r {
-			for i, j := 0, len(output)-1; i < j; i, j = i+1, j-1 {
-				output[i], output[j] = output[j], output[i]
-			}
-		}
-
+		output = numSort(output, r)
 	}
 
 	if !n && !h && !m {
 		if c {
-			if sort.StringsAreSorted(output) {
-				fmt.Println("Sorted")
-				return []string{"Sorted"}
-			} else {
-				fmt.Println("Not Sorted")
-				return []string{"Not sorted"}
-			}
+			return checkIfSorted(output)
 		}
-		if r {
-			sort.Sort(sort.Reverse(sort.StringSlice(output)))
-		} else {
-			sort.Strings(output)
-		}
-
+		output = normalSort(output, r)
 	}
 
 	if col > 0 {
-		tmp := make(map[string]string)
-		for _, v := range strings.Split(string(input), "\n") {
-			line := strings.Split(v, separator)
-			tmp[line[col-1]] = v
-		}
-		for i := range output {
-			output[i] = tmp[output[i]]
-		}
+		output = returnToInitialColOrder(input, output, col)
 	}
 
 	fmt.Println(output)
