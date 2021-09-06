@@ -164,17 +164,12 @@ func returnToInitialColOrder(input []byte, output []string, reqCol int) []string
 func UtilSort(input []byte) []string {
 	output := strings.Split(string(input), "\n")
 
-	for _, v := range output {
-		fmt.Println(v)
-	}
-
 	if b {
 		output = ignoreSpaces(output)
 	}
 
 	if col > 0 {
 		output = changeColOrder(output, col)
-		fmt.Println(output)
 	}
 
 	if u {
@@ -203,6 +198,8 @@ func UtilSort(input []byte) []string {
 		output = returnToInitialColOrder(input, output, col)
 	}
 
-	fmt.Println(output)
+	for _, v := range output {
+		fmt.Println(v)
+	}
 	return output
 }
