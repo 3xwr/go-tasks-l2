@@ -1,0 +1,13 @@
+THIS LINE IS THE 1ST UPPER CASE LINE IN THIS FILE. line 1
+this line is the 1st lower case line in this file. line 2
+This Line Has All Its First Character Of The Word With Upper Case. line 3
+unique
+
+
+Two lines above this line is empty. line 5
+And this is the last line. line 6
+THIS line 7
+this line 8
+chugnus line 9
+chugnus line 10
+chugnus line 11
