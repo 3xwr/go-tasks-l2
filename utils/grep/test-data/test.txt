@@ -2,7 +2,13 @@ THIS LINE IS THE 1ST UPPER CASE LINE IN THIS FILE. line 1
 this line is the 1st lower case line in this file. line 2
 This Line Has All Its First Character Of The Word With Upper Case. line 3
 unique
+п
+1
 
+п
+2
+п
+3
 
 Two lines above this line is empty. line 5
 And this is the last line. line 6
