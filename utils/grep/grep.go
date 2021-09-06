@@ -78,18 +78,6 @@ func RegExpSearch(input []string, searchPattern string) []int {
 	return output
 }
 
-func removeDuplicateStr(strSlice []string) []string {
-	allKeys := make(map[string]bool)
-	list := []string{}
-	for _, item := range strSlice {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
-			list = append(list, item)
-		}
-	}
-	return list
-}
-
 func removeDuplicateInts(intSlice []int) []int {
 	allKeys := make(map[int]bool)
 	list := []int{}
